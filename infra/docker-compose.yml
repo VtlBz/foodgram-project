@@ -10,9 +10,9 @@ services:
       - ../backend/foodgram/.env
 
   fg-srv:
-    build:
-      context: ../backend/foodgram
-      dockerfile: Dockerfile
+#    build:
+#      context: ../backend/foodgram
+#      dockerfile: Dockerfile
     image: vtlbz/foodgram-back:lastest
     restart: always
     volumes:
@@ -24,9 +24,9 @@ services:
       - ../backend/foodgram/.env
 
   fg-frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+#    build:
+#      context: ../frontend
+#      dockerfile: Dockerfile
     image: vtlbz/foodgram-front:lastest
     volumes:
       - ../frontend/:/app/result_build/
