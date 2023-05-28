@@ -44,8 +44,9 @@ DB_HOST=fg-db # название сервиса (контейнера), по у�
 DB_PORT=5432 # порт для подключения к БД, стандартный по умолчанию
 ```
 
-Копировать на сервер файлы *.env*, *default.conf* и *docker-compose.yaml*:
+Копировать на сервер папку *docs* и файлы *.env*, *default.conf* и *docker-compose.yaml*:
 ```
+scp -r docs <username>@<server>:/home/<username>
 scp .env <username>@<server>:/home/<username>
 scp default.conf <username>@<server>:/home/<username>
 scp docker-compose.yaml <username>@<server>:/home/<username>
