@@ -1,22 +1,21 @@
 from datetime import datetime
 
-from django.contrib.auth import get_user_model
-from django.db.models import Sum
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-
 from api.v1.serializers import (FollowSerializer, IngredientSerializer,
                                 RecipeReadSerializer, RecipeShortSerializer,
                                 RecipeWriteSerializer, TagSerializer)
 from core.filters import IngredientSearchFilter, RecipeFilter
 from core.pagination import FGPagination
 from core.permissions import IsAuthenticated, IsOwnerOrRO
+from django.contrib.auth import get_user_model
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from users.models import Follow
 
 User = get_user_model()
