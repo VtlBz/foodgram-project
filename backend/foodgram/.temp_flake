@@ -1,2 +1,0 @@
-[flake8]
-exclude = .vscode,venv,migrations,manage.py,settings.py
