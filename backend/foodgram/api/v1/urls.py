@@ -1,14 +1,8 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from api.v1.views import (
-    FGUserViewSet,
-    # FollowViewSet,
-    IngredientViewSet,
-    RecipeViewSet,
-    # RecipeIngredientViewSet,
-    TagViewSet
-)
+from api.v1.views import (FGUserViewSet, IngredientViewSet, RecipeViewSet,
+                          TagViewSet)
 
 router_v1 = routers.DefaultRouter()
 
@@ -35,12 +29,6 @@ router_v1.register(
     RecipeViewSet,
     basename='recipes'
 )
-
-# router_v1.register(
-#     r'posts/(?P<post_id>\d+)/comments',
-#     CommentViewSet,
-#     basename='comments'
-# )
 
 urlpatterns = [
     path('', include(router_v1.urls)),

@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
 from django.db import models
 
 from core.validators import FGUsernameValidator
@@ -65,7 +64,9 @@ class FGUser(AbstractUser):
         verbose_name_plural = 'Пользователи'
 
     def __repr__(self):
-        return f'ID: {self.pk}, E-mail: {self.email}, Username: {self.username}'
+        return (f'ID: {self.pk}, '
+                f'E-mail: {self.email}, '
+                f'Username: {self.username}')
 
     def __str__(self):
         return self.username
@@ -114,7 +115,8 @@ class Follow(models.Model):
     #     super().clean()
 
     def __repr__(self):
-        return f'ID: {self.pk}, {self.follower.username} >>> {self.author.username}'
+        return f'ID: {self.pk}, ' \
+               f'{self.follower.username} >>> {self.author.username}'
 
     def __str__(self):
         return f'{self.follower.username} подписан на {self.author.username}'

@@ -3,7 +3,6 @@ from django.core.management.base import BaseCommand
 from recipes.management.commands import _fill_db_main
 
 
-
 class Command(BaseCommand):
     help = 'Creating model objects according the file folder path specified'
 

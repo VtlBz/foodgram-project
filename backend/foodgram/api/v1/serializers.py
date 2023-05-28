@@ -2,14 +2,9 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from core.fields import Base64ImageField
-from core.validators import (TextMaxLengthValidator,
-                             FGUsernameValidator,
-                             )
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from users.models import Follow
 
 User = get_user_model()
 
@@ -22,7 +17,9 @@ class UserAddSerializer(UserCreateSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password')
+        fields = (
+            'id', 'username', 'email', 'first_name', 'last_name', 'password'
+        )
 
 
 class UserProfileSerializer(UserSerializer):
@@ -116,7 +113,9 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
-    ingredients = RecipeIngredientReadSerializer(source='recipe_ingredients', many=True)
+    ingredients = RecipeIngredientReadSerializer(
+        source='recipe_ingredients', many=True
+    )
 
     class Meta:
         model = Recipe
@@ -126,13 +125,17 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if user.is_anonymous:
             return False
-        return Recipe.favorited.through.objects.filter(fguser=user, recipe=obj).exists()
+        return Recipe.favorited.through.objects.filter(
+            fguser=user, recipe=obj
+        ).exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context['request'].user
         if user.is_anonymous:
             return False
-        return Recipe.in_shopping_cart.through.objects.filter(fguser=user, recipe=obj).exists()
+        return Recipe.in_shopping_cart.through.objects.filter(
+            fguser=user, recipe=obj
+        ).exists()
 
 
 class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
@@ -173,7 +176,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data, author=user)
         recipe.tags.set(tags)
         for ingredient in ingredients:
-            RecipeIngredient.objects.create(recipe=recipe, ingredient=ingredient['id'], amount=ingredient['amount'])
+            RecipeIngredient.objects.create(
+                recipe=recipe,
+                ingredient=ingredient['id'],
+                amount=ingredient['amount']
+            )
         return recipe
 
     def update(self, instance, validated_data):
@@ -181,7 +188,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             ingredients = validated_data.pop('ingredients')
             instance.ingredients.clear()
             for ingredient in ingredients:
-                RecipeIngredient.objects.create(recipe=instance, ingredient=ingredient['id'], amount=ingredient['amount'])
+                RecipeIngredient.objects.create(
+                    recipe=instance,
+                    ingredient=ingredient['id'],
+                    amount=ingredient['amount']
+                )
         if 'tags' in validated_data:
             tags = validated_data.pop('tags')
             instance.tags.clear()
@@ -193,4 +204,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('image', 'name', 'text', 'cooking_time', 'tags', 'ingredients')
+        fields = (
+            'image', 'name', 'text', 'cooking_time', 'tags', 'ingredients'
+        )

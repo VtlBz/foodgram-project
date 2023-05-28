@@ -1,5 +1,4 @@
-from django_filters.rest_framework import (FilterSet,
-                                           ModelChoiceFilter,
+from django_filters.rest_framework import (FilterSet, ModelChoiceFilter,
                                            ModelMultipleChoiceFilter,
                                            NumberFilter)
 from rest_framework import filters

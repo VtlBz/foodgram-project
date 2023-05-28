@@ -1,8 +1,7 @@
 from typing import List, Tuple, Union
 
 from django.conf import settings
-from django.core.validators import (BaseValidator,
-                                    RegexValidator)
+from django.core.validators import BaseValidator, RegexValidator
 from django.utils.deconstruct import deconstructible
 
 user_conf = settings.USER_CREDENTIAL_SETTINGS
@@ -46,7 +45,8 @@ class FGUsernameValidator:
     """Валидатор логина пользователя."""
     MESSAGE_LENGTH: str = ('Длинна поля username не может '
                            'превышать {} символов')
-    MESSAGE_RESTRICT: str = ('Имя пользователя "me" (me/ME/Me/mE) является зарезервированным значением. '
+    MESSAGE_RESTRICT: str = ('Имя пользователя "me" (me/ME/Me/mE) '
+                             'является зарезервированным значением. '
                              'Используйте друге имя пользователя.')
     MESSAGE_CHARS: str = ('Имя пользователя может содержать только '
                           'латинские буквы, цифры и знаки @/./+/-/_')

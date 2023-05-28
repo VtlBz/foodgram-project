@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -9,11 +10,12 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.v1.serializers import *
+from api.v1.serializers import (FollowSerializer, IngredientSerializer,
+                                RecipeReadSerializer, RecipeShortSerializer,
+                                RecipeWriteSerializer, TagSerializer)
 from core.filters import IngredientSearchFilter, RecipeFilter
 from core.pagination import FGPagination
-from core.permissions import (IsAuthenticated,
-                              IsOwnerOrRO)
+from core.permissions import IsAuthenticated, IsOwnerOrRO
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Follow
 
@@ -38,15 +40,25 @@ class FGUserViewSet(UserViewSet):
 
         if request.method == 'POST':
             if user == author:
-                return Response(data={'errors': 'Нарцисcизм это болезнь!'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    data={'errors': 'Нарцисcизм это болезнь!'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             serializer = FollowSerializer(
                 author, data=request.data, context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
-            _, is_created = Follow.objects.get_or_create(follower=user, author=author)
+            _, is_created = Follow.objects.get_or_create(
+                follower=user, author=author
+            )
             if not is_created:
-                return Response(data={'errors': 'Подписка уже оформлена.'}, status=status.HTTP_400_BAD_REQUEST)
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+                return Response(
+                    data={'errors': 'Подписка уже оформлена.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            return Response(
+                data=serializer.data, status=status.HTTP_201_CREATED
+            )
 
         follow = get_object_or_404(
             Follow, follower=user, author=author
@@ -125,8 +137,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             serializer = RecipeShortSerializer(
                 recipe, context={'request': request})
-            _, is_create = Recipe.in_shopping_cart.through.objects.get_or_create(
-                fguser=user, recipe=recipe
+            _, is_create = (
+                Recipe.in_shopping_cart.through.objects.get_or_create(
+                    fguser=user, recipe=recipe
+                )
             )
             if not is_create:
                 return Response(data={'errors': 'Рецепт уже в корзине!'},
@@ -162,6 +176,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 f'{ingredient["ingredient__measurement_unit"]}'
             )
         shopping_cart = '\n'.join(shopping_list)
-        response = HttpResponse(shopping_cart, content_type='text/plain; charset=utf-8')
+        response = HttpResponse(
+            shopping_cart, content_type='text/plain; charset=utf-8'
+        )
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
