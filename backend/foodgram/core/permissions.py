@@ -6,7 +6,11 @@ def is_authenticated(request):
 
 
 class AllowAny(BasePermission):
-    pass
+    def has_permission(self, request, view):
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        return True
 
 
 class IsAuthenticated(BasePermission):
@@ -28,13 +32,15 @@ class IsAuthenticatedOrReadOnly(BasePermission):
         return request.method in SAFE_METHODS
 
 
-class IsOwner(BasePermission):
+class IsOwnerOrRO(BasePermission):
 
     def has_permission(self, request, view):
-        return is_authenticated(request)
+        return (request.method in SAFE_METHODS
+                or is_authenticated(request))
 
     def has_object_permission(self, request, view, obj):
-        return obj.author == request.user
+        return (request.method in SAFE_METHODS
+                or obj.author == request.user)
 
 
 class IsStuff(BasePermission):

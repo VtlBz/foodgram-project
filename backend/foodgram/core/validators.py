@@ -1,12 +1,9 @@
 from typing import List, Tuple, Union
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.core.validators import (BaseValidator,
                                     RegexValidator)
-from django.utils import timezone
 from django.utils.deconstruct import deconstructible
-# from rest_framework.serializers import ValidationError
 
 user_conf = settings.USER_CREDENTIAL_SETTINGS
 
@@ -49,10 +46,9 @@ class FGUsernameValidator:
     """Валидатор логина пользователя."""
     MESSAGE_LENGTH: str = ('Длинна поля username не может '
                            'превышать {} символов')
-    MESSAGE_RESTRICT: str = ('Username "me" (me/ME/Me/mE) является '
-                             'зарезервированным значением. '
-                             'Используйте другой username.')
-    MESSAGE_CHARS: str = ('Username может содержать только '
+    MESSAGE_RESTRICT: str = ('Имя пользователя "me" (me/ME/Me/mE) является зарезервированным значением. '
+                             'Используйте друге имя пользователя.')
+    MESSAGE_CHARS: str = ('Имя пользователя может содержать только '
                           'латинские буквы, цифры и знаки @/./+/-/_')
 
     def __init__(self):
@@ -75,35 +71,3 @@ class FGUsernameValidator:
         self.max_length_validator(value)
         self.restrict_name_validator(value)
         self.pattern_match(value)
-
-
-@deconstructible
-class YearValidator:
-    code = 'invalid_year'
-
-    def __init__(self):
-        self.result = 'OK'
-        self.message = self.result
-        self.current_year = timezone.now().year
-
-    def __call__(self, value):
-        self.message = self.is_valid_year(value)
-        params = {'value': value}
-        if self.message != self.result:
-            raise ValidationError(self.message, code=self.code, params=params)
-
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        return (
-            self.limit_value == other.limit_value and
-            self.message == other.message and
-            self.code == other.code
-        )
-
-    def is_valid_year(self, value):
-        if not isinstance(value, int) or value < 0:
-            self.message = f'Указан некорректный год ({value})'
-        if value > self.current_year:
-            self.message = 'Год не может быть больше текущего'
-        return self.message

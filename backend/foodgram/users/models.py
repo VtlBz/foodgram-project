@@ -1,18 +1,16 @@
-from typing import Tuple
-
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from core.validators import FGUsernameValidator
 
 
 class FGUser(AbstractUser):
-    """Модель кастомного пользователя для проекта FoodGram."""
-    class Role(models.TextChoices):
-        ADMIN: Tuple[str, str] = ('admin', 'Администратор',)
-        MODERATOR: Tuple[str, str] = ('moderator', 'Модератор',)
-        USER: Tuple[str, str] = ('user', 'Пользователь',)
-        RO: Tuple[str, str] = ('readonly', 'Читатель',)
+    """Custom user model for FoodGram project."""
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     username = models.CharField(
         verbose_name='Никнейм',
@@ -32,42 +30,91 @@ class FGUser(AbstractUser):
         verbose_name='E-mail адрес',
         unique=True,
         db_index=True,
-        help_text=('E-mail адрес пользователя. Обязательное поле. '
-                   'Должно быть уникальным. 254 символа или меньше.'),
+        help_text='E-mail адрес пользователя. Обязательное поле. '
+                  'Должно быть уникальным. 254 символа или меньше.',
         error_messages={
-            'unique': 'Пользователь с таким адресом уже зарегистрирован.',
+            'unique': 'Пользователь с таким адресом уже существует.',
         },
     )
 
-    role = models.CharField(
-        verbose_name='Роль',
-        max_length=30,
-        blank=True,
-        default=Role.USER,
-        choices=Role.choices,
-        help_text='Роль пользователя',
+    first_name = models.CharField(
+        verbose_name='Имя',
+        max_length=150
     )
 
-    bio = models.TextField(
-        verbose_name='Биография',
-        blank=True,
-        default='',
-        help_text='Информация о пользователе (необязательно)',
+    last_name = models.CharField(
+        max_length=150,
+        verbose_name='Фамилия',
     )
 
-    @property
-    def is_admin(self):
-        return self.role == self.Role.ADMIN or self.is_superuser
+    date_joined = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата регистрации',
+        help_text='Дата регистрации пользователя',
+    )
 
-    @property
-    def is_moderator(self):
-        return self.role == self.Role.MODERATOR
-
-    def save(self, *args, **kwargs):
-        self.is_staff = True if self.is_admin else False
-        super().save(*args, **kwargs)
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата обновления',
+        help_text='Дата последнего обновления профиля пользователя',
+    )
 
     class Meta:
-        ordering = ('pk',)
+        ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    def __repr__(self):
+        return f'ID: {self.pk}, E-mail: {self.email}, Username: {self.username}'
+
+    def __str__(self):
+        return self.username
+
+
+User = get_user_model()
+
+
+class Follow(models.Model):
+    """Model for subscriptions to recipe authors."""
+    follower = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='followings',
+        verbose_name='Подписчик',
+        help_text='Подписчик',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='followers',
+        verbose_name='Автор',
+        help_text='Автор',
+    )
+
+    create_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата подписки',
+        help_text='Дата подписки',
+    )
+
+    class Meta:
+        db_table = 'follows'
+        verbose_name = 'Подписки'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('follower', 'author'),
+                name='unique_follow'
+            )
+        ]
+
+    # def clean(self):
+    #     if self.follower == self.author:
+    #         raise ValidationError('Нельзя подписаться на самого себя')
+    #     super().clean()
+
+    def __repr__(self):
+        return f'ID: {self.pk}, {self.follower.username} >>> {self.author.username}'
+
+    def __str__(self):
+        return f'{self.follower.username} подписан на {self.author.username}'
