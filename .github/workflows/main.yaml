@@ -67,9 +67,10 @@ jobs:
             sudo docker compose stop
             sudo docker compose rm -f fg-srv
             sudo docker compose pull fg-srv
-            sudo docker compose up --build -d
+            sudo docker compose up -d
+#            sudo docker compose up --build -d
             sudo docker compose exec -T fg-srv python manage.py migrate
-            sudo docker system prune -f
+#            sudo docker system prune -f
 
   send_message:
     name: Send 'OK' message via Telegram
