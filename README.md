@@ -16,7 +16,7 @@ Cервис **FoodGram**, для размещения **рецептов** ку�
 
 ---
 
-![Статус](https://github.com/VtlBz/foodgram-project-react/actions/workflows/main.yml/badge.svg)
+![Статус](https://github.com/VtlBz/foodgram-project-react/actions/workflows/main.yaml/badge.svg)
 
 ---
 
