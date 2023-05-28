@@ -16,7 +16,7 @@ Cервис **FoodGram**, для размещения **рецептов** ку�
 
 ---
 
-![Статус](https://github.com/VtlBz/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg)
+![Статус](https://github.com/VtlBz/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 ---
 
@@ -65,7 +65,7 @@ TELEGRAM_TO # ID чата (пользователя), которому прид�
 
 При первом запуске создать суперпользователя:
 ```
-docker-compose exec yamdb-srv python manage.py createsuperuser
+docker compose exec fg-srv python manage.py createsuperuser
 ```
 
 ---
@@ -80,6 +80,7 @@ docker-compose exec yamdb-srv python manage.py createsuperuser
 
 Аргумент ***-p*** *(**--path**)* опциональный, 
 вместо него можно указать путь к папке в переменной **default** в файле recipes/management/commands/fill_db.py.
+(указывать путь к папке с файлом, не к самому файлу)
 
 \* *Тестовые данные лежат в папке ./static/ingredients.csv*
 

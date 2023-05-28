@@ -71,8 +71,8 @@ def process_table(reader, _model, file_name) -> None:
         if is_create:
             row_success += 1
     logger.info(f'End processing file {file_name}, '
-                f'imported {row_count} row(s), '
-                f'{row_success} successfully.')
+                f'processed {row_count} row(s), '
+                f'{row_success} successfully created.')
 
 
 def run(folder_path) -> None:

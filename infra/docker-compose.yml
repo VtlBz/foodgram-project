@@ -7,7 +7,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data/
     env_file:
-      - ../backend/foodgram/.env
+      - .env
 
   fg-srv:
 #    build:
@@ -21,7 +21,7 @@ services:
     depends_on:
       - fg-db
     env_file:
-      - ../backend/foodgram/.env
+      - .env
 
   fg-frontend:
 #    build:
