@@ -1,9 +1,9 @@
 from typing import List, Tuple, Union
 
 from django.conf import settings
-from django.core.validators import (BaseValidator,
-                                    MaxValueValidator,
-                                    RegexValidator)
+from django.core.validators import (
+    BaseValidator, MaxValueValidator, RegexValidator,
+)
 from django.utils.deconstruct import deconstructible
 
 user_conf = settings.USER_CREDENTIAL_SETTINGS
