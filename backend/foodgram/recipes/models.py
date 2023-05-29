@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import (
     MaxValueValidator, MinValueValidator, RegexValidator,
@@ -20,7 +21,9 @@ class Tag(models.Model):
         unique=True,
         verbose_name='Цвет тэга',
         help_text='Введите цветовой HEX-код тэга',
-        validators=[RegexValidator(regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$')]
+        validators=[
+            RegexValidator(regex=settings.TAG_COLOR_MASK)
+        ]
     )
     slug = models.SlugField(
         unique=True,
@@ -34,11 +37,6 @@ class Tag(models.Model):
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
         ordering = ('name',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['name', 'color'], name='unique_tag'
-            )
-        ]
 
     def __str__(self):
         return self.name
@@ -183,9 +181,11 @@ class RecipeIngredient(models.Model):
         db_table = 'recipes_ingredients'
         verbose_name = 'Количество'
         verbose_name_plural = 'Количество'
-        constraints = [models.UniqueConstraint(
-            fields=['recipe', 'ingredient'],
-            name='unique_amount')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique_amount'
+            )
         ]
 
     def __str__(self):

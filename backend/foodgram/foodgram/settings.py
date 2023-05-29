@@ -23,10 +23,9 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', DEFAULT_HOSTS).split(' ')
 
 # Application definition
 
-AUTH_USER_MODEL = 'users.FGUser'
+AUTH_USER_MODEL = 'users.FoodGramUser'
 
 INSTALLED_APPS = [
-    # 'users.apps.FGUsersConfig',
     'users',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -165,13 +164,16 @@ DJOSER = {
     'HIDE_USERS': False,
     'PERMISSIONS': {
         'user_list': ['rest_framework.permissions.AllowAny'],
-        'user': ['core.permissions.AllowAny'],
+        'user': ['rest_framework.permissions.AllowAny'],
     },
     'SERIALIZERS': {
         'user': 'api.v1.serializers.UserProfileSerializer',
         'current_user': 'api.v1.serializers.UserProfileSerializer',
     }
 }
+
+
+# Constants
 
 USER_CREDENTIAL_SETTINGS = {
     'RESTRICT_USERNAMES': ('me',),
@@ -180,5 +182,5 @@ USER_CREDENTIAL_SETTINGS = {
     'EMAIL_MAX_LENGTH': 254,
 }
 
-# Constants
 DEFAULT_FOR_EMPTY: str = '-пусто-'
+TAG_COLOR_MASK: str = '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'

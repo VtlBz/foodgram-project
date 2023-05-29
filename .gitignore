@@ -1,3 +1,7 @@
+nppBackup
+db.json
+db2.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

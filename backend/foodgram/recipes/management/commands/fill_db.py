@@ -4,17 +4,18 @@ from recipes.management.commands import _fill_db_main
 
 
 class Command(BaseCommand):
-    help = 'Creating model objects according the file folder path specified'
+    help = 'Создание объектов модели из файла по указанному пути.'
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-p',
+            '-p', '--path',
+            dest='path',
             type=str,
-            help='Defines the path to folder with imported files',
+            help='Определяет путь к папке с импортируемыми файлами',
             default=''
         )
 
     def handle(self, *args, **options):
         _fill_db_main.confirmation()
-        _fill_db_main.run(options['p'])
+        _fill_db_main.run(options['path'])
         print('Complete!')

@@ -1,14 +1,15 @@
 from typing import List, Tuple, Union
 
 from django.conf import settings
-from django.core.validators import BaseValidator, RegexValidator
+from django.core.validators import (BaseValidator,
+                                    MaxValueValidator,
+                                    RegexValidator)
 from django.utils.deconstruct import deconstructible
 
 user_conf = settings.USER_CREDENTIAL_SETTINGS
 
 
-@deconstructible
-class TextMaxLengthValidator(BaseValidator):
+class TextMaxLengthValidator(MaxValueValidator):
     """Проверяет длинну строки на соответсвие ограничению."""
     message = 'Ошибка валидации, проверьте кооректность значения'
     code = 'max_text_length'
@@ -20,7 +21,6 @@ class TextMaxLengthValidator(BaseValidator):
         return len(x)
 
 
-@deconstructible
 class RestrictTextValidator(BaseValidator):
     """Проверяет строку на присутствие в переданном перечне."""
     message = 'Ошибка валидации, проверьте кооректность значения'
@@ -41,9 +41,9 @@ class RestrictTextValidator(BaseValidator):
 
 
 @deconstructible
-class FGUsernameValidator:
+class UsernameValidator:
     """Валидатор логина пользователя."""
-    MESSAGE_LENGTH: str = ('Длинна поля username не может '
+    MESSAGE_LENGTH: str = ('Длинна поля не может '
                            'превышать {} символов')
     MESSAGE_RESTRICT: str = ('Имя пользователя "me" (me/ME/Me/mE) '
                              'является зарезервированным значением. '

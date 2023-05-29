@@ -121,21 +121,19 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         model = Recipe
         exclude = ('pub_date', 'favorited', 'in_shopping_cart')
 
-    def get_is_favorited(self, obj):
+    def _check_exist(self, obj, model):
         user = self.context['request'].user
         if user.is_anonymous:
             return False
-        return Recipe.favorited.through.objects.filter(
-            fguser=user, recipe=obj
+        return model.objects.filter(
+            foodgramguser=user, recipe=obj
         ).exists()
 
+    def get_is_favorited(self, obj):
+        return self._check_exist(obj, Recipe.favorited.through)
+
     def get_is_in_shopping_cart(self, obj):
-        user = self.context['request'].user
-        if user.is_anonymous:
-            return False
-        return Recipe.in_shopping_cart.through.objects.filter(
-            fguser=user, recipe=obj
-        ).exists()
+        return self._check_exist(obj, Recipe.in_shopping_cart.through)
 
 
 class RecipeIngredientWriteSerializer(serializers.ModelSerializer):

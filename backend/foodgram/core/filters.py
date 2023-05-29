@@ -13,23 +13,22 @@ class RecipeFilter(FilterSet):
         to_field_name='slug',
         queryset=Tag.objects.all(),
     )
-    is_favorited = NumberFilter(method='favorited')
-    is_in_shopping_cart = NumberFilter(method='in_shopping_cart')
+    is_favorited = NumberFilter(method='_filter_by_field')
+    is_in_shopping_cart = NumberFilter(method='_filter_by_field')
+
+    filter_field = {
+        'is_favorited': 'favorited__user',
+        'is_in_shopping_cart__user': 'in_shopping_cart__user',
+    }
 
     class Meta:
         model = Recipe
         fields = ('author', 'tags',)
 
-    def favorited(self, qs, filter_name, value):
+    def _filter_by_field(self, qs, filter_name, value):
         user = self.request.user
         if bool(value) and user.is_authenticated:
-            return qs.filter(favorited=user)
-        return qs
-
-    def in_shopping_cart(self, qs, filter_name, value):
-        user = self.request.user
-        if bool(value) and user.is_authenticated:
-            return qs.filter(in_shopping_cart=user)
+            return qs.filter(**{self.filter_field[filter_name]: user})
         return qs
 
 

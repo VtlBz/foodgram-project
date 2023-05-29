@@ -29,10 +29,6 @@ APP_MODEL = 'recipes.Ingredient'
 def confirmation() -> None:
     print('Данный скрипт импортирует данные '
           'из .csv файлов в базу данных проекта.')
-    # for i, value in enumerate(conf.IMPORT_CONFIG, start=1):
-    #     file_name = value[0]
-    #     app_model = value[1]
-    #     print(f'{i}. {file_name} --> {app_model}')
     print(f'{FILE_NAME} --> {APP_MODEL}')
     print('Импорт будет произведён в указанном выше порядке и'
           'в соответствии со связью <имя_файла> --> <app_name>.<Model_name>')
@@ -70,17 +66,17 @@ def process_table(reader, _model, file_name) -> None:
         row_count += 1
         if is_create:
             row_success += 1
-    logger.info(f'End processing file {file_name}, '
-                f'processed {row_count} row(s), '
-                f'{row_success} successfully created.')
+    logger.info(f'Конец обработки файла {file_name}, '
+                f'обработано строк - {row_count}, '
+                f'успешно создано - {row_success}.')
 
 
 def run(folder_path) -> None:
     app_name, model_name = APP_MODEL.split('.')
     file_path = get_file_path(folder_path, FILE_NAME)
-    logger.info(f'Start processing model {app_name}.{model_name}')
+    logger.info(f'Начало обработки модели {app_name}.{model_name}')
     _model = apps.get_model(app_label=app_name, model_name=model_name)
-    logger.info(f'Start processing file {FILE_NAME}')
+    logger.info(f'Начало обработки файла {FILE_NAME}')
     with open(file_path, 'r') as csv_file:
         reader = csv.reader(csv_file, delimiter=',', quotechar='"')
         process_table(reader, _model, FILE_NAME)

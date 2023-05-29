@@ -2,11 +2,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from core.validators import FGUsernameValidator
+from core.validators import UsernameValidator
 
 
-class FGUser(AbstractUser):
-    """Custom user model for FoodGram project."""
+class FoodGramUser(AbstractUser):
+    """Модернизированная модель пользователя для проекта FoodGram."""
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
@@ -16,10 +16,9 @@ class FGUser(AbstractUser):
         max_length=150,
         unique=True,
         db_index=True,
-        help_text=('Никнейм пользователя. Обязательное поле. '
-                   'Должно быть уникальным. 150 символов или меньше. '
-                   'Допустимы только буквы, цифры и символы @/./+/-/_ .'),
-        validators=(FGUsernameValidator(),),
+        help_text=('Уникальный никнейм пользователя. '
+                   'Обязательное поле, не более 150 символов.'),
+        validators=(UsernameValidator(),),
         error_messages={
             'unique': 'Пользователь с таким никнеймом уже зарегистрирован.',
         },
@@ -76,7 +75,7 @@ User = get_user_model()
 
 
 class Follow(models.Model):
-    """Model for subscriptions to recipe authors."""
+    """Модель подписок на авторов рецептов."""
     follower = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -106,13 +105,12 @@ class Follow(models.Model):
             models.UniqueConstraint(
                 fields=('follower', 'author'),
                 name='unique_follow'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(author=models.F('follower')),
+                name='restrict_self_follow',
             )
         ]
-
-    # def clean(self):
-    #     if self.follower == self.author:
-    #         raise ValidationError('Нельзя подписаться на самого себя')
-    #     super().clean()
 
     def __repr__(self):
         return (f'ID: {self.pk}, '
