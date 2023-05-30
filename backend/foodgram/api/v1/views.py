@@ -99,14 +99,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
     ordering = ('-id',)
 
-    favorite_recipe = Recipe.favorited.through
-    shopping_cart_recipe = Recipe.in_shopping_cart.through
-    msg_fav_0 = 'Рецепт не был в избранном!'
-    msg_fav_1 = 'Рецепт уже в избранном!'
-    msg_cart_0 = 'Рецепт не был в корзине!'
-    msg_cart_1 = 'Рецепт уже в корзине!'
-
-    def _add_or_delete_recipe(self, request, model, msg_0, msg_1):
+    def _add_or_delete_recipe(self, request, model, msg_txt):
         user = get_object_or_404(User, username=request.user)
         recipe = get_object_or_404(Recipe, id=self.kwargs.get('pk'))
 
@@ -115,19 +108,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe, context={'request': request})
             _, is_create = (
                 model.objects.get_or_create(
-                    foodgramguser=user, recipe=recipe
+                    foodgramuser=user, recipe=recipe
                 )
             )
             if not is_create:
-                return Response(data={'errors': msg_1},
+                return Response(data={'errors': f'Рецепт уже в {msg_txt}'},
                                 status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         target_recipe = model.objects.filter(
-            foodgramguser=user, recipe=recipe
+            foodgramuser=user, recipe=recipe
         )
         if not target_recipe:
-            return Response(data={'errors': msg_0},
+            return Response(data={'errors': f'Рецепт не был в {msg_txt}!'},
                             status=status.HTTP_400_BAD_REQUEST)
         target_recipe.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -140,17 +133,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, **kwargs):
+        favorite_recipe = Recipe.favorited.through
+        msg_txt = 'избранном'
         return self._add_or_delete_recipe(
-            request, self.favorite_recipe,
-            self.msg_fav_0, self.msg_fav_1
+            request, favorite_recipe, msg_txt
         )
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, **kwargs):
+        shopping_cart_recipe = Recipe.in_shopping_cart.through
+        msg_txt = 'корзине'
         return self._add_or_delete_recipe(
-            request, self.shopping_cart_recipe,
-            self.msg_cart_0, self.msg_cart_1
+            request, shopping_cart_recipe, msg_txt
         )
 
     @action(detail=False, permission_classes=[IsAuthenticated])

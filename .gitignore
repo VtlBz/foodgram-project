@@ -1,6 +1,8 @@
 nppBackup
 db.json
 db2.json
+static/
+media/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
