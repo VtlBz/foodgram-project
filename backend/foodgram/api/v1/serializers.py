@@ -55,7 +55,7 @@ class RecipeShortSerializer(serializers.ModelSerializer):
 class FollowSerializer(UserProfileSerializer):
     """Сериализатор подписок пользователей."""
     # recipes_count = serializers.SerializerMethodField(read_only=True)
-    recipes_count = serializers.IntegerField
+    recipes_count = serializers.IntegerField()
     # recipes = serializers.SerializerMethodField(read_only=True)
     recipes = RecipeShortSerializer(many=True)
 
