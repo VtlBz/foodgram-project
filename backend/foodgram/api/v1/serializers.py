@@ -54,22 +54,8 @@ class RecipeShortSerializer(serializers.ModelSerializer):
 
 class FollowSerializer(UserProfileSerializer):
     """Сериализатор подписок пользователей."""
-    # recipes_count = serializers.SerializerMethodField(read_only=True)
-    recipes_count = serializers.IntegerField()
-    # recipes = serializers.SerializerMethodField(read_only=True)
+    recipes_count = serializers.IntegerField(read_only=True)
     recipes = RecipeShortSerializer(many=True)
-
-    # def get_recipes_count(self, obj):
-    #     return obj.recipes.count()
-
-    # def get_recipes(self, obj):
-    #     request = self.context.get('request')
-    #     limit = request.query_params.get('recipes_limit')
-    #     qs = obj.recipes.all()[:int(limit)]
-    #     serializer = RecipeShortSerializer(
-    #         qs, context=self.context, many=True
-    #     )
-    #     return serializer.data
 
     class Meta(UserProfileSerializer.Meta):
         fields = ('id', 'username', 'email',

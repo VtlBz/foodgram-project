@@ -47,9 +47,9 @@ class FoodGramUserViewSet(UserViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             serializer = FollowSerializer(
-                author, data=request.data, context={'request': request}
+                author, context={'request': request}
             )
-            serializer.is_valid(raise_exception=True)
+
             _, is_created = Follow.objects.get_or_create(
                 follower=user, author=author
             )
@@ -84,8 +84,6 @@ class FoodGramUserViewSet(UserViewSet):
         ).prefetch_related(prefetch_query).annotate(
             recipes_count=Count('recipes')
         )
-        # print(queryset)
-        # queryset = User.objects.filter(followers__follower=request.user)
         pages = self.paginate_queryset(queryset)
         serializer = FollowSerializer(
             pages, many=True, context={'request': request}
