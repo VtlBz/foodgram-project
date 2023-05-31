@@ -17,8 +17,8 @@ class RecipeFilter(FilterSet):
     is_in_shopping_cart = NumberFilter(method='_filter_by_field')
 
     filter_field = {
-        'is_favorited': 'favorited__user',
-        'is_in_shopping_cart__user': 'in_shopping_cart__user',
+        'is_favorited': 'favorited',
+        'is_in_shopping_cart': 'in_shopping_cart',
     }
 
     class Meta:

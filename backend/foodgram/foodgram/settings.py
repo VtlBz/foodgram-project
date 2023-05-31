@@ -16,7 +16,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', DEFAULT_TOKEN)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+debug_state = {'False': False,
+               'True': True}
+DEBUG = debug_state[os.getenv('DEBUG_STATE', False)]
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', DEFAULT_HOSTS).split(' ')
 
@@ -38,6 +40,7 @@ INSTALLED_APPS = [
     'django_filters',
     'djoser',
     'api',
+    'colorfield',
     'recipes',
 ]
 

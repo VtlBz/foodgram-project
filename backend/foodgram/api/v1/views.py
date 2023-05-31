@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.db.models import Sum
+from django.db.models import Count, OuterRef, Prefetch, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -70,8 +70,22 @@ class FoodGramUserViewSet(UserViewSet):
 
     @action(detail=False, permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        user = request.user
-        queryset = User.objects.filter(followers__follower=user)
+        recipes_limit = int(
+            self.request.GET.get('recipes_limit', default=3)
+        )
+        users_recipes = Recipe.objects.filter(
+            author_id=OuterRef('author_id')
+        )[:recipes_limit]
+        prefetch_query = Prefetch(
+            'recipes', queryset=Recipe.objects.filter(id__in=users_recipes)
+        )
+        queryset = User.objects.filter(
+            followers__follower=request.user
+        ).prefetch_related(prefetch_query).annotate(
+            recipes_count=Count('recipes')
+        )
+        # print(queryset)
+        # queryset = User.objects.filter(followers__follower=request.user)
         pages = self.paginate_queryset(queryset)
         serializer = FollowSerializer(
             pages, many=True, context={'request': request}
@@ -99,10 +113,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
     ordering = ('-id',)
 
-    def _add_or_delete_recipe(self, request, model, msg_txt):
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
+            return RecipeWriteSerializer
+        return RecipeReadSerializer
+
+    def _mark_or_unmark(self, request, model, msg_txt):
         user = get_object_or_404(User, username=request.user)
         recipe = get_object_or_404(Recipe, id=self.kwargs.get('pk'))
-
         if request.method == 'POST':
             serializer = RecipeShortSerializer(
                 recipe, context={'request': request})
@@ -112,10 +130,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 )
             )
             if not is_create:
-                return Response(data={'errors': f'Рецепт уже в {msg_txt}'},
+                return Response(data={'errors': f'Рецепт уже {msg_txt}.'},
                                 status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         target_recipe = model.objects.filter(
             foodgramuser=user, recipe=recipe
         )
@@ -125,27 +142,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
         target_recipe.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def get_serializer_class(self):
-        if self.request.method in ['POST', 'PUT', 'PATCH']:
-            return RecipeWriteSerializer
-        return RecipeReadSerializer
-
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, **kwargs):
         favorite_recipe = Recipe.favorited.through
-        msg_txt = 'избранном'
-        return self._add_or_delete_recipe(
-            request, favorite_recipe, msg_txt
+        msg_place = 'в избранном'
+        return self._mark_or_unmark(
+            request, favorite_recipe, msg_place
         )
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, **kwargs):
         shopping_cart_recipe = Recipe.in_shopping_cart.through
-        msg_txt = 'корзине'
-        return self._add_or_delete_recipe(
-            request, shopping_cart_recipe, msg_txt
+        msg_place = 'в корзине'
+        return self._mark_or_unmark(
+            request, shopping_cart_recipe, msg_place
         )
 
     @action(detail=False, permission_classes=[IsAuthenticated])

@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from core.fields import Base64ImageField
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 
 User = get_user_model()
@@ -54,18 +54,22 @@ class RecipeShortSerializer(serializers.ModelSerializer):
 
 class FollowSerializer(UserProfileSerializer):
     """Сериализатор подписок пользователей."""
-    recipes_count = serializers.SerializerMethodField(read_only=True)
-    recipes = serializers.SerializerMethodField(read_only=True)
+    # recipes_count = serializers.SerializerMethodField(read_only=True)
+    recipes_count = serializers.IntegerField
+    # recipes = serializers.SerializerMethodField(read_only=True)
+    recipes = RecipeShortSerializer(many=True)
 
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
+    # def get_recipes_count(self, obj):
+    #     return obj.recipes.count()
 
-    def get_recipes(self, obj):
-        request = self.context.get('request')
-        limit = request.query_params.get('recipes_limit')
-        qs = obj.recipes.all()[:int(limit)]
-        serializer = RecipeShortSerializer(qs, context=self.context, many=True)
-        return serializer.data
+    # def get_recipes(self, obj):
+    #     request = self.context.get('request')
+    #     limit = request.query_params.get('recipes_limit')
+    #     qs = obj.recipes.all()[:int(limit)]
+    #     serializer = RecipeShortSerializer(
+    #         qs, context=self.context, many=True
+    #     )
+    #     return serializer.data
 
     class Meta(UserProfileSerializer.Meta):
         fields = ('id', 'username', 'email',
@@ -167,30 +171,28 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def _add_ingridient_in_recipe(self, ingredients, obj):
+        for ingredient in ingredients:
+            RecipeIngredient.objects.create(
+                recipe=obj,
+                ingredient=ingredient['id'],
+                amount=ingredient['amount']
+            )
+
     def create(self, validated_data):
         user = self.context['request'].user
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data, author=user)
         recipe.tags.set(tags)
-        for ingredient in ingredients:
-            RecipeIngredient.objects.create(
-                recipe=recipe,
-                ingredient=ingredient['id'],
-                amount=ingredient['amount']
-            )
+        self._add_ingridient_in_recipe(ingredients, recipe)
         return recipe
 
     def update(self, instance, validated_data):
         if 'ingredients' in validated_data:
             ingredients = validated_data.pop('ingredients')
             instance.ingredients.clear()
-            for ingredient in ingredients:
-                RecipeIngredient.objects.create(
-                    recipe=instance,
-                    ingredient=ingredient['id'],
-                    amount=ingredient['amount']
-                )
+            self._add_ingridient_in_recipe(ingredients, instance)
         if 'tags' in validated_data:
             tags = validated_data.pop('tags')
             instance.tags.clear()

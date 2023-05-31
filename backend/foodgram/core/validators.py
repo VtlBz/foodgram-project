@@ -14,9 +14,6 @@ class TextMaxLengthValidator(MaxValueValidator):
     message = 'Ошибка валидации, проверьте кооректность значения'
     code = 'max_text_length'
 
-    def compare(self, a, b):
-        return a > b
-
     def clean(self, x):
         return len(x)
 
