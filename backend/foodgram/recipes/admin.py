@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
+from core.forms import RecipeIngridientFormSet
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 
 User = get_user_model()
@@ -15,6 +16,7 @@ class TagInline(admin.TabularInline):
 
 
 class RecipeIngredientInline(admin.TabularInline):
+    formset = RecipeIngridientFormSet
     model = RecipeIngredient
     min_num = 1
     extra = 0
