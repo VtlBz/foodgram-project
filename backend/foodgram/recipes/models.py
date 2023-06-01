@@ -103,6 +103,7 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
+        blank=False,
         related_name='recipes',
         verbose_name='Тэг',
         help_text='Тэг для рецепта'
@@ -169,8 +170,8 @@ class RecipeIngredient(models.Model):
 
     class Meta:
         db_table = 'recipes_ingredients'
-        verbose_name = 'Количество'
-        verbose_name_plural = 'Количество'
+        verbose_name = 'Количество в рецепте'
+        verbose_name_plural = 'Количество в рецепте'
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],

@@ -8,8 +8,25 @@ from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 User = get_user_model()
 
 
+class TagInline(admin.TabularInline):
+    model = Recipe.tags.through
+    min_num = 1
+    extra = 0
+
+
 class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
+    min_num = 1
+    extra = 0
+
+
+class FavoritedInline(admin.TabularInline):
+    model = User.favorited_recipes.through
+    extra = 1
+
+
+class InCartInline(admin.TabularInline):
+    model = User.in_cart_recipes.through
     extra = 1
 
 
@@ -42,12 +59,22 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'pk', 'name', 'author', 'pub_date', 'cooking_time',
     )
+    exclude = ('tags', 'favorited', 'in_shopping_cart')
     list_editable = ('name',)
     search_fields = ('name', 'author',)
     list_filter = ('author', 'pub_date', 'cooking_time',)
-    inlines = [RecipeIngredientInline]
+    empty_value_display = settings.DEFAULT_FOR_EMPTY
+    inlines = (
+        TagInline, RecipeIngredientInline, FavoritedInline, InCartInline
+    )
 
 
 @admin.register(RecipeIngredient)
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        'pk', 'recipe', 'ingredient', 'amount',
+    )
+    list_editable = ('amount',)
+    search_fields = ('recipe__name', 'ingredient__name',)
+    list_filter = ('recipe', 'ingredient',)
+    empty_value_display = settings.DEFAULT_FOR_EMPTY

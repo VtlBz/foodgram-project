@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core.validators import (
     BaseValidator, MaxValueValidator, RegexValidator,
 )
-from django.utils.deconstruct import deconstructible
 
 user_conf = settings.USER_CREDENTIAL_SETTINGS
 
@@ -20,6 +19,7 @@ class TextMaxLengthValidator(MaxValueValidator):
 
 class RestrictTextValidator(BaseValidator):
     """Проверяет строку на присутствие в переданном перечне."""
+
     message = 'Ошибка валидации, проверьте кооректность значения'
     code = 'restrict_text'
 
@@ -37,9 +37,9 @@ class RestrictTextValidator(BaseValidator):
         return x.lower()
 
 
-@deconstructible
-class UsernameValidator:
+class UsernameValidator(BaseValidator):
     """Валидатор логина пользователя."""
+
     MESSAGE_LENGTH: str = ('Длинна поля не может '
                            'превышать {} символов')
     MESSAGE_RESTRICT: str = ('Имя пользователя "me" (me/ME/Me/mE) '
@@ -47,6 +47,9 @@ class UsernameValidator:
                              'Используйте друге имя пользователя.')
     MESSAGE_CHARS: str = ('Имя пользователя может содержать только '
                           'латинские буквы, цифры и знаки @/./+/-/_')
+
+    message = 'Имя пользователя не соответствует требованиям'
+    code = "invalid_username"
 
     def __init__(self):
         self.max_length_validator = TextMaxLengthValidator(

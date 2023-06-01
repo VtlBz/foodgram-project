@@ -155,6 +155,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'В рецепте должен быть хотя бы один ингридиент'
             )
+        ingridient_set = set()
+        for item in value:
+            ingridient_set.add(item['id'])
+        if len(ingridient_set) != len(value):
+            raise serializers.ValidationError(
+                'Дублирование ингридиентов не допускается!'
+            )
         return value
 
     def _add_ingridient_in_recipe(self, ingredients, obj):
